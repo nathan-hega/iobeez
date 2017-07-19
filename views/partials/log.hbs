@@ -1,0 +1,12 @@
+<table class="table-striped log">
+  <tr>
+    <th>Timestamp</th>
+    <th>Value</th>
+  </tr>
+  {{#each this}}
+    <tr>
+      <td>{{this.timestamp}}</td>
+      <td>{{this.value}}</td>
+    </tr>
+  {{/each}}
+</table>

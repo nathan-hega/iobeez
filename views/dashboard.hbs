@@ -1,0 +1,43 @@
+<script src="/socket.io/socket.io.js"></script>
+<script>
+  var account_name = document.cookie.match(/account_name=(\w+);?/);
+  account_name = account_name && account_name.length ? account_name[1] : null;
+  var connection = 'http://localhost:3000?token=' + account_name;
+  var socket = io.connect(connection);
+
+  socket.on('update', function (data) {
+      // append new data to the proper log
+      $("div#" + data.sensor_name + " > .log tr").eq(0)
+      .after("<tr class=success><td>" + data.timestamp + "</td><td>" + data.value + "</td></tr>");
+    });
+</script>
+
+<h1>Dashboard</h1>
+
+<div id=temperature>
+  <h3>Temperature</h3>
+  <a href="/history/temperature">History</a>
+  {{>averages averages.temperature}}
+  {{>log sensor_data.temperature}}
+</div>
+
+<div id=motion>
+  <h3>Motion</h3>
+  <a href="/history/motion">History</a>
+  {{>averages averages.motion}}
+  {{>log sensor_data.motion}}
+</div>
+
+<div id=smoke>
+  <h3>Smoke</h3>
+  <a href="/history/smoke">History</a>
+  {{>averages averages.smoke}}
+  {{>log sensor_data.smoke}}
+</div>
+
+<div id=electric>
+  <h3>Electric</h3>
+  <a href="/history/electric">History</a>
+  {{>averages averages.electric}}
+  {{>log sensor_data.electric}}
+</div>
