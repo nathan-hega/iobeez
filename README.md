@@ -101,7 +101,6 @@ GET response for `/api/logs`
 }
 ```
 
-
 ### Requirements
 - Multiple users
 - View sensor reading in real time / live on web dashboard
@@ -116,12 +115,6 @@ GET response for `/api/logs`
 - Not worrying about HTTPS
 - Not updating averages when live data comes in, marked in code comments as TODO - ENHANCEMENT
 - Live updates only occur on the dashboard, not the `/history` routes
-
-## Next Steps
-- Implement the enhancements scattered in the code comments as `TODO - ENHANCEMENTS`
-- Make the views / styling production quality (i.e. way better than what I currently have)
-- Focus on concurrency / production level traffic by running siege or something similar on the web server and consequently the database server
-- Tie up any loose security ends and add support for HTTPS
 
 ## Testing
 
@@ -140,3 +133,55 @@ GET response for `/api/logs`
 ### API
 - `/api/logs` will return all logs in the database in JSON format
 - see **API** section above for more details
+
+
+## Next Steps
+
+### Enhancements
+
+- Right now, averages aren't updated live when new logs come in.
+- There could be a minor discrepency in timestamps since one timestamp comes from the postgresql server and the other comes from moment().
+- Format the timestamp to match the DB formatting.
+- It might be better to use prepared queries.
+- Add logging support for queries.
+- Change average time logic to allow for more dynamic application via config file
+- Update /api/logs POST to handle many sensor logs per post (json req.body?)
+
+
+### Authentication
+
+Implement authentication properly by using proper password fields in the database and setting appropriate session cookies in the application. I don't think the data stored in the session will be large, so we can probably get away with storing all the data in the cookie itself rather than having redis or some other data storage mechanism come into play.
+
+
+### Views / Styling
+
+- Improve error support by defining a user-friendly error message and taking users back to the login form to try again.
+- Change frontend handlebars context to allow for more dynamic dashboard (new sensors wouldn't require html updates, etc...)
+- Make sure the site is responsively designs, using something like bootstrap or foundation
+- Header, footer, navigation, etc...
+
+
+### Concurency / Load
+
+- Database server load / concurrency testing
+-- Might reveal if any of the inserts or statements lock / block others from executing to an extreme degree, etc...
+- Might be best to move the restful api component to a standalone app so that it doesn't share the connection pool with users viewing data. The restful api should be getting blasted with sensor data all the time, meaning the connection pool may become monopolized. We could also just create two pools, one for the users and another for the api. I would need to investigate these two approaches.
+- Siege -> Test load on the dashboards and histories
+
+### Security
+
+- TLS over SSL, encrypts data before it leaves the client
+- Helmet -> module that messes with some headers to prevent security flaws
+- Enable HTTPS
+- Use cookies and session cookies securely
+- Ensure depedencies are secure
+
+
+### Devops
+
+- Strongloop -> Process manager to handle automatic restarts and monitor activities / logs / resources.
+- Build / Bundling tool for backend and frontend tools / assets, etc...
+- Differentiating between production and development modes with env variables and code tweaks
+- Caching, though most of the app is user-sensitive meaning that most of it won't be cached
+- Clustering -> Allow multiple instances of the same app to run on different processes. No shared memory so you have to rely on external data sources for session related things, like redis. No state in the application code can be used
+- Load Balancer -> allow requests to be routed to different clusters based on load of cluster, etc.. Have to worry about "sticky sessions" if you are using in-memory session management. Something like redis should solve this issue
